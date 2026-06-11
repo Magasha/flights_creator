@@ -93,6 +93,46 @@ def _find_column_index(headers: list, field_key: str) -> Optional[int]:
     return None
 
 
+# Маппинг названий → коды API (формат ru_*)
+ORG_TYPE_MAP = {
+    # Кириллица
+    "ООО":  "ru_ooo",
+    "АО":   "ru_ao",
+    "ОАО":  "ru_oao",
+    "ЗАО":  "ru_zao",
+    "ПАО":  "ru_pao",
+    "ИП":   "ru_ip",
+    "НКО":  "ru_nko",
+    # Латиница (старые значения)
+    "OOO":  "ru_ooo",
+    "LLC":  "ru_ooo",
+    "AO":   "ru_ao",
+    "JSC":  "ru_ao",
+    "OAO":  "ru_oao",
+    "ZAO":  "ru_zao",
+    "CJSC": "ru_zao",
+    "PAO":  "ru_pao",
+    "PJSC": "ru_pao",
+    "IP":   "ru_ip",
+    "IE":   "ru_ip",
+    "NKO":  "ru_nko",
+    # Уже в правильном формате — оставляем как есть
+    "RU_OOO": "ru_ooo",
+    "RU_AO":  "ru_ao",
+    "RU_OAO": "ru_oao",
+    "RU_ZAO": "ru_zao",
+    "RU_PAO": "ru_pao",
+    "RU_IP":  "ru_ip",
+    "RU_NKO": "ru_nko",
+}
+
+
+def _normalize_org_type(value: str) -> str:
+    """Конвертирует кириллический тип компании в код для API."""
+    s = _normalize(value).strip()
+    return ORG_TYPE_MAP.get(s.upper(), s)  # если не найден — передаём как есть
+
+
 def _parse_bool(value) -> bool:
     """Парсит булево значение из ячейки."""
     s = _normalize_lower(value)
@@ -116,7 +156,7 @@ def _parse_float(value, field_name: str, row_errors: list) -> float:
         return 0.0
 
 
-def read_excel(file_path: str, sheet_name: str = "Рейсы") -> List[OrderRow]:
+def read_orders_excel(file_path: str, sheet_name: str = "Рейсы") -> List[OrderRow]:
     """
     Читает Excel файл и возвращает список OrderRow.
 
@@ -206,7 +246,7 @@ def read_excel(file_path: str, sheet_name: str = "Рейсы") -> List[OrderRow]
         flight_name = get("flight_name")
         company_name = get("company_name")
         inn = get("inn")
-        org_type = get("org_type")
+        org_type = _normalize_org_type(get("org_type"))
         country = get("country")
         currency = get("currency")
         vat_raw = get("vat")
