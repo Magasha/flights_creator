@@ -39,7 +39,7 @@ magistrali_script/
 ### 1. Установите зависимости
 
 ```bash
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 ```
 
 ### 2. Получите OAuth2 токен Яндекса
