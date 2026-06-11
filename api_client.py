@@ -87,6 +87,7 @@ class MagistraliClient:
     def get_orders(
         self,
         order_ids: list[str] = None,
+        cargo_ids: list[str] = None,
         statuses: list[str] = None,
         limit: int = 100,
     ) -> list[dict]:
@@ -94,16 +95,25 @@ class MagistraliClient:
         Получает заказы для заказчика.
 
         Args:
-            order_ids: Список ID заказов (если None — берёт все)
-            statuses: Список статусов (например ['onExecute'])
-            limit: Максимум записей (до 1000)
+            order_ids:  Системные UUID заказов (exactOrderIds) — редко используется напрямую
+            cargo_ids:  Человекочитаемые номера заказов (exactCargoIds), например '0-MPPEE-2606-11-15-001'
+            statuses:   Список статусов (например ['onExecute'])
+            limit:      Максимум записей (до 1000)
+
+        Примечание:
+            В интерфейсе Магистралей отображается cargoId (например '0-MPPEE-...'),
+            а не системный UUID. Поэтому по умолчанию ищем через exactCargoIds.
         """
         payload = {
             "data": {
                 "limit": limit,
             }
         }
+        if cargo_ids:
+            # Основной способ поиска — по отображаемому номеру заказа
+            payload["data"]["exactCargoIds"] = cargo_ids
         if order_ids:
+            # Резервный способ — по системному UUID
             payload["data"]["exactOrderIds"] = order_ids
         if statuses:
             payload["data"]["statuses"] = statuses
@@ -111,13 +121,19 @@ class MagistraliClient:
         result = self.post("/api/orders/v0/transferOrder/getFlatForCustomer", payload)
         return result.get("data", {}).get("items", [])
 
-    def get_flights_for_orders(self, order_ids: list[str]) -> list[dict]:
-        """Возвращает рейсы, связанные с указанными заказами."""
-        payload = {
-            "data": {
-                "orderIds": order_ids,
-            }
-        }
+    def get_flights_for_orders(self, order_ids: list[str] = None, cargo_ids: list[str] = None) -> list[dict]:
+        """
+        Возвращает рейсы, связанные с указанными заказами.
+
+        Args:
+            order_ids:  Системные UUID заказов
+            cargo_ids:  Человекочитаемые номера (cargoIds)
+        """
+        payload: dict = {"data": {}}
+        if order_ids:
+            payload["data"]["orderIds"] = order_ids
+        if cargo_ids:
+            payload["data"]["cargoIds"] = cargo_ids
         result = self.post("/api/flights/v1/listForForwarder", payload)
         return result.get("data", {}).get("items", [])
 

@@ -9,14 +9,14 @@
 
 # OAuth2 Bearer токен от Яндекса (https://oauth.yandex.ru/)
 # Как получить: см. README.md раздел "Получение токена"
-YANDEX_OAUTH_TOKEN = "y0_AgAAAA..."  # замените на свой токен
+YANDEX_OAUTH_TOKEN = "y0__xDOz6y7Axig9TMgjbHCwBUwla6htghloRCMOr8Qsy-udMrg3MrL0UVPPQ"  # замените на свой токен
 
 # Ваш идентификатор организации-экспедитора в Яндекс Магистралях
 # Можно узнать через GET /api/orders/v0/transferOrder/forwarder/allow
-FORWARDER_ID = ""  # например: "12345"
+FORWARDER_ID = "3dcj5qf2x4iod81xxksobjf7"  # например: "12345"
 
 # Базовый URL API
-BASE_URL = "https://yamagistrali.ru"
+BASE_URL = "https://partner-test-yamagistrali.ru"
 
 # ============================================================
 # НАСТРОЙКИ EXCEL ФАЙЛА
